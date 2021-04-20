@@ -33,7 +33,7 @@ IF(${TARGET} STREQUAL "server")
                                -fstack-protector-strong -fPIE -fPIC -pie -O2 \
                                -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security \
                                -Wl,-S -Wall -std=c++11 -lpthread -lsafestring_shared \
-                               -D_GLIBCXX_USE_CXX11_ABI=0")
+                               -D_GLIBCXX_USE_CXX11_ABI=0 -Wno-error=deprecated-declarations")
   SET(FFMPEG_DIR "ffmpeg")
   SET(FFMPEG_FILE "ffmpeg.txt")
   SET(FFMPEG_FLAG --prefix=/usr --libdir=/usr/lib --enable-static

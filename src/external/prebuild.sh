@@ -33,13 +33,13 @@ install_tools() {
     if [ $? != 0 ];then
         if [ "${OS}" == \""Ubuntu"\" ];then
             sudo apt-get install -y software-properties-common
-	    sudo apt update
-	    sudo apt install make -y
-	    sudo apt install g++-7 -y
-	    sudo update-alternatives \
-		    --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 \
-		    --slave /usr/bin/g++ g++ /usr/bin/g++-7
-	    sudo update-alternatives --config gcc
+        sudo apt update
+        sudo apt install make -y
+        sudo apt install g++-7 -y
+        sudo update-alternatives \
+            --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 \
+            --slave /usr/bin/g++ g++ /usr/bin/g++-7
+        sudo update-alternatives --config gcc
         elif [ "${OS}" == \""CentOS Linux"\" ];then
             sudo yum install centos-release-scl
             sudo yum install scl-utils
@@ -70,7 +70,7 @@ install_tools() {
 
     mkdir -p ../build/external && cd ../build/external
     if [ ! -f "./zlib-1.2.11.tar.gz" ];then
-        wget http://zlib.net/zlib-1.2.11.tar.gz
+        wget https://zlib.net/zlib-1.2.11.tar.gz
     fi
     tar xf zlib-1.2.11.tar.gz
     cd zlib-1.2.11 && ./configure && make -j $(nproc) && sudo make install && cd ..
@@ -94,23 +94,23 @@ install_tools() {
 
 install_dependencies() {
     cd ${EX_PATH}
-    if [ ${TARGET} == "server" ] ; then
+    if [ "${TARGET}" == "server" ] ; then
         ./install_glog.sh
         ./install_safestringlib.sh
         ./install_openHEVC.sh
         ./install_SVT.sh
         ./install_thrift.sh
         ./install_FFmpeg.sh server
-    elif [ ${TARGET} == "client" ] ; then
+    elif [ "${TARGET}" == "client" ] ; then
         ./install_glog.sh
         ./install_safestringlib.sh
         ./prebuild_player.sh
         ./install_FFmpeg.sh client
-    elif [ ${TARGET} == "android" ] ; then
+    elif [ "${TARGET}" == "android" ] ; then
         ./prebuild_android.sh
     fi
 
-    if [ ${LTTNGFLAG} == "--enable-lttng" ] ; then
+    if [ "${LTTNGFLAG}" == "--enable-lttng" ] ; then
         ./install_lttng.sh
     fi
 }

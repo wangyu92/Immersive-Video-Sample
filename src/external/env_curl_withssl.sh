@@ -43,7 +43,8 @@ fi
 # AOSP_API="android-21"    # Android 5.0 and above
 # AOSP_API="android-23"    # Android 6.0 and above
 if [ -z "$AOSP_API" ]; then
-    AOSP_API="android-21"
+    # AOSP_API="android-21"
+    AOSP_API="android-28"
 fi
 
 #####################################################################
@@ -53,7 +54,8 @@ fi
 # If the user did not specify the NDK location, try and pick it up. We expect something
 #   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
 
-export ANDROID_NDK_ROOT="${PWD}/../android-ndk-r14b"
+# export ANDROID_NDK_ROOT="${PWD}/../android-ndk-r14b"
+export ANDROID_NDK_ROOT="${PWD}/../android-ndk-r21e"
 
 if [ -z "$ANDROID_NDK_ROOT" ]; then
     ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name android-ndk-r10* 2>/dev/null | tail -1)
@@ -186,17 +188,28 @@ export ANDROID_SYSROOT=$AOSP_SYSROOT
 
 #####################################################################
 
-
-export CPP="$AOSP_TOOLCHAIN_PATH/$TOOLNAME_BASE-cpp --sysroot=$AOSP_SYSROOT"
-export CC="$AOSP_TOOLCHAIN_PATH/$TOOLNAME_BASE-gcc --sysroot=$AOSP_SYSROOT"
-export CXX="$AOSP_TOOLCHAIN_PATH/$TOOLNAME_BASE-g++ --sysroot=$AOSP_SYSROOT"
-export CFLAGS="-pie -fPIE"
-export LDFLAGS="-pie -fPIE"
+# 갑자기 여기를 주석처리하니까 됨.
+# export CPP="$AOSP_TOOLCHAIN_PATH/$TOOLNAME_BASE-cpp --sysroot=$AOSP_SYSROOT"
+# export CC="$AOSP_TOOLCHAIN_PATH/$TOOLNAME_BASE-gcc --sysroot=$AOSP_SYSROOT"
+# export CXX="$AOSP_TOOLCHAIN_PATH/$TOOLNAME_BASE-g++ --sysroot=$AOSP_SYSROOT"
+# export CFLAGS="-pie -fPIE"
+# export LDFLAGS="-pie -fPIE"
 #####################################################################
 
 export PREFIX=${PWD}/../curl-output/$AOSP_ABI
-export CC="$AOSP_TOOLCHAIN_PATH/$TOOLNAME_BASE-gcc --sysroot=$AOSP_SYSROOT"
+# export CC="$AOSP_TOOLCHAIN_PATH/$TOOLNAME_BASE-gcc --sysroot=$AOSP_SYSROOT"
 
+# For 7.76.1
+export NDK="$ANDROID_NDK_ROOT"
+export HOST_TAG="$host"
+export TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/$HOST_TAG"
+export AR=$TOOLCHAIN/bin/aarch64-linux-android-ar
+export AS=$TOOLCHAIN/bin/aarch64-linux-android-as
+export CC=$TOOLCHAIN/bin/aarch64-linux-android28-clang
+export CXX=$TOOLCHAIN/bin/aarch64-linux-android28-clang++
+export LD=$TOOLCHAIN/bin/aarch64-linux-android-ld
+export RANLIB=$TOOLCHAIN/bin/aarch64-linux-android-ranlib
+export STRIP=$TOOLCHAIN/bin/aarch64-linux-android-strip
 
 VERBOSE=1
 if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
@@ -208,12 +221,18 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
   echo "AOSP_SYSROOT: $AOSP_SYSROOT"
 fi
 
+# ./configure \
+#     --prefix=$PREFIX \
+#     --with-darwinssl \
+#     --with-ssl=${PWD}/../openssl-output/ \
+#     --enable-static \
+#     --enable-shared \
+#     --host=$TOOLNAME_BASE
+mkdir ../openssl-output
 ./configure \
-    --prefix=$PREFIX \
-    --with-darwinssl \
-    --with-ssl=${PWD}/../openssl-output/ \
-    --enable-static \
-    --enable-shared \
-    --host=$TOOLNAME_BASE
+    --host "$TOOLNAME_BASE" \
+    --with-pic \
+    --disable-shared \
+    --with-openssl="${PWD}/../openssl-output/"
 
 [ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0

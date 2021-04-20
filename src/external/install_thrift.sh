@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/usr/bin/bash
 OS=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 
 mkdir -p ../build/external

@@ -31,6 +31,7 @@ build_server(){
         sudo cp ../../ffmpeg/dependency/WorkerServer /root
         cmake -DCMAKE_BUILD_TYPE=Release -DTARGET=server ../..
     fi
+    echo "Script executed from: ${PWD}"
     make -j $(nproc)
     sudo make install
 }

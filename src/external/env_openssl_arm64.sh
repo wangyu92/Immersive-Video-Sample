@@ -14,9 +14,8 @@
 # login script. If ANDROID_NDK_ROOT is not specified, the script will
 # try to pick it up with the value of _ANDROID_NDK_ROOT below. If
 # ANDROID_NDK_ROOT is set, then the value is ignored.
-# _ANDROID_NDK="android-ndk-r8e"
-_ANDROID_NDK="android-ndk-r14b"
-# _ANDROID_NDK="android-ndk-r10"
+# _ANDROID_NDK="android-ndk-r14b"
+_ANDROID_NDK="android-ndk-r21e"
 
 # Set _ANDROID_EABI to the EABI you want to use. You can find the
 # list in $ANDROID_NDK_ROOT/toolchains. This value is always used.
@@ -35,9 +34,9 @@ _ANDROID_ARCH=arch-arm64
 # example, API-17) because the NDK does not supply the platform. At
 # Android 5.0, there will likely be another platform added (android-22?).
 # This value is always used.
-# _ANDROID_API="android-14"
-_ANDROID_API="android-21"
-# _ANDROID_API="android-19"
+# _ANDROID_API="android-21"
+# _ANDROID_API="android-24"
+_ANDROID_API="android-28"
 
 #####################################################################
 
@@ -47,7 +46,8 @@ _ANDROID_API="android-21"
 
 if [ -z "$ANDROID_NDK_ROOT" ]; then
 
-  _ANDROID_NDK_ROOT="${PWD}/../build/external/android/android-ndk-r14b"
+  # _ANDROID_NDK_ROOT="${PWD}/../build/external/android/android-ndk-r14b"
+  _ANDROID_NDK_ROOT="${PWD}/../build/external/android/android-ndk-r21e"
   if [ -z "$_ANDROID_NDK_ROOT" ] && [ -d "/usr/local/$_ANDROID_NDK" ]; then
     _ANDROID_NDK_ROOT="/usr/local/$_ANDROID_NDK"
   fi
@@ -101,11 +101,20 @@ fi
 # doing things according to the NDK documentation for Ice Cream Sandwich.
 # https://android.googlesource.com/platform/ndk/+/ics-mr0/docs/STANDALONE-TOOLCHAIN.html
 
+# ANDROID_TOOLCHAIN=""
+# for host in "linux-x86_64" "linux-x86" "darwin-x86_64" "darwin-x86"
+# do
+#   if [ -d "$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI/prebuilt/$host/bin" ]; then
+#     ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI/prebuilt/$host/bin"
+#     break
+#   fi
+# done
+
 ANDROID_TOOLCHAIN=""
 for host in "linux-x86_64" "linux-x86" "darwin-x86_64" "darwin-x86"
 do
   if [ -d "$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI/prebuilt/$host/bin" ]; then
-    ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI/prebuilt/$host/bin"
+    ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin"
     break
   fi
 done
@@ -117,16 +126,27 @@ if [ -z "$ANDROID_TOOLCHAIN" ] || [ ! -d "$ANDROID_TOOLCHAIN" ]; then
   # exit 1
 fi
 
+# case $_ANDROID_ARCH in
+# 	arch-arm64)
+#       ANDROID_TOOLS="aarch64-linux-android-gcc aarch64-linux-android-ranlib aarch64-linux-android-ld"
+# 	  ;;
+# 	arch-x86)
+#       ANDROID_TOOLS="i686-linux-android-gcc i686-linux-android-ranlib i686-linux-android-ld"
+# 	  ;;
+# 	*)
+# 	  echo "ERROR ERROR ERROR"
+# 	  ;;
+# esac
 case $_ANDROID_ARCH in
-	arch-arm64)
-      ANDROID_TOOLS="aarch64-linux-android-gcc aarch64-linux-android-ranlib aarch64-linux-android-ld"
-	  ;;
-	arch-x86)
+  arch-arm64)
+      ANDROID_TOOLS="aarch64-linux-android-ar aarch64-linux-android-as aarch64-linux-android28-clang aarch64-linux-android28-clang++ aarch64-linux-android-ld aarch64-linux-android-ranlib aarch64-linux-android-strip"
+    ;;
+  arch-x86)
       ANDROID_TOOLS="i686-linux-android-gcc i686-linux-android-ranlib i686-linux-android-ld"
-	  ;;
-	*)
-	  echo "ERROR ERROR ERROR"
-	  ;;
+    ;;
+  *)
+    echo "ERROR ERROR ERROR"
+    ;;
 esac
 
 for tool in $ANDROID_TOOLS
@@ -218,6 +238,14 @@ export ANDROID_API="$_ANDROID_API"
 # export CROSS_COMPILE="arm-linux-androideabi-"
 export ANDROID_DEV="$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr"
 export HOSTCC=gcc
+
+# -----------------
+
+export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
+export HOST_TAG="$host"
+export TOOLCHAIN="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$HOST_TAG"
+PATH="$TOOLCHAIN:$PATH"
+export ANDROIDO_API_LEVEL=28
 
 VERBOSE=1
 if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
